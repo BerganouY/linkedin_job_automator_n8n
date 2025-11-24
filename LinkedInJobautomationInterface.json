@@ -1,0 +1,860 @@
+{
+  "name": "LinkedInJobautomationInterface",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "search-jobs",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": false
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -32,
+        544
+      ],
+      "id": "b52c3314-4caa-4e2e-8eab-d2f3b405365d",
+      "name": "Webhook",
+      "webhookId": "153056b3-bdc7-430f-8c53-791ff3c23d4e"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2160,
+        -80
+      ],
+      "id": "edecd96a-ca88-4cd0-a02d-7f19bbb22620",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"count\": 100,\n    \"scrapeCompany\": true,\n    \"urls\": [\n        \"{{ $json.body.url }}\"\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        160,
+        544
+      ],
+      "id": "f922d517-bf11-4c03-bf1b-dd916d2c44b8",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bf3417b5-d3bd-4bcf-a3e5-e1f093bed277",
+              "name": "CompanyName",
+              "value": "={{ $json.companyName }}",
+              "type": "string"
+            },
+            {
+              "id": "29fac3db-8cb8-4c9f-8013-d35eb1c0cb25",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "33d6d147-d1b8-4b6e-b5de-d0cfc022b341",
+              "name": "Job description",
+              "value": "={{ $json.descriptionText }}",
+              "type": "string"
+            },
+            {
+              "id": "b61b9bfe-cb4f-4016-9943-066149b8ae7a",
+              "name": "Location",
+              "value": "={{ $json.location }}",
+              "type": "string"
+            },
+            {
+              "id": "840d8c54-fafb-474e-aec2-2f79ba3758c4",
+              "name": "Company website",
+              "value": "={{ $json.companyWebsite }}",
+              "type": "string"
+            },
+            {
+              "id": "3cf164a1-d3ec-4920-956e-c0aeb80772c6",
+              "name": "Logo",
+              "value": "={{ $json.companyLogo }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        848,
+        544
+      ],
+      "id": "9244f036-bc35-48ab-b047-a3b48f88b750",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        -80
+      ],
+      "id": "e034ba40-23b4-47ef-9eaa-3c402e319a8b",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-draft",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        768
+      ],
+      "id": "0fc206d5-c008-4c4b-9ecd-152b2e239447",
+      "name": "Webhook1",
+      "webhookId": "153056b3-bdc7-430f-8c53-791ff3c23d4e"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert email writer specializing in professional job outreach.\n\nI have attached my CV to this AI agent. Analyze it carefully and extract the most relevant skills, experiences, and achievements that match the job requirements. Use this information to create a fully personalized email.\n\nYour task:\nWrite a concise, persuasive, and well-structured professional email expressing my interest in the role below. The email must be tailored specifically to the company and job. Use a friendly, confident, and professional tone.\n\nVERY IMPORTANT RULES:\n\nOutput only the final email content.\n\nNEVER use placeholders like [Company Name], [Job Title], etc.\n\nInsert the real values directly using the provided data.\n\nDo not mention my CV or that you analyzed it.\n\nDo not repeat the job description; tailor the message smoothly.\n\nDo not include a subject line.\n\nJob Title:\n{{ $('Webhook1').item.json.body.Title }}\n\nJob Description:\n{{ $('Webhook1').item.json.body['Job description'] }}\n\nCompany Name:\n{{ $('Webhook1').item.json.body['Company Name'] }}\n\nEmail Goal:\nI want to apply for this job. Write a customized email using information extracted from my CV.\n\nMy CV Content:\n{{ $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        976,
+        768
+      ],
+      "id": "fb3ad915-15f9-4efa-90a8-63976d660c11",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        944,
+        960
+      ],
+      "id": "",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1280,
+        768
+      ],
+      "id": "5ecde865-4d8e-4f5c-9f65-b82ff6f32903",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        688,
+        768
+      ],
+      "id": "18ba84eb-db51-4a8a-b283-78fd75d6553c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "send-email",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        160,
+        1136
+      ],
+      "id": "40bea8ba-c85a-4494-a64e-fa33153674bb",
+      "name": "Webhook2",
+      "webhookId": "153056b3-bdc7-430f-8c53-791ff3c23d4e"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1632,
+        1136
+      ],
+      "id": "85f2a1f6-ec66-4022-9ff2-17953387aa17",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body['Company Email'] }}",
+        "subject": "=Apply for {{ $json.body.Title }}",
+        "emailType": "text",
+        "message": "={{ $json.body.output }}",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1216,
+        1136
+      ],
+      "id": "",
+      "name": "Send a message",
+      "webhookId": "15e03f97-898a-4472-b45b-bd021105f0d2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1376,
+        80
+      ],
+      "id": "4ce02feb-4e67-4366-a6c7-061fdda9b072",
+      "name": "Loop Over Items2",
+      "alwaysOutputData": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2096,
+        80
+      ],
+      "id": "23868766-2d3f-4cea-8217-0cf6ca36e030",
+      "name": "Wait3",
+      "webhookId": "1d146d8a-0574-4ddb-9b36-c44ea34a05c4"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: HTML text from previous node\nconst html = $input.first().json.data;   // change \"html\" to your input field\n\n// Regex to extract ONLY valid emails and ignore SVG files, images, filenames, etc.\nconst emailRegex = /\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b/gi;\n\n// Extract emails\nconst emails = html.match(emailRegex) || [];\n\n// Remove duplicates\nconst uniqueEmails = [...new Set(emails)];\n\n// Return results\nreturn [\n  {\n    emails: uniqueEmails,\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2336,
+        80
+      ],
+      "id": "e1ad9f39-d0db-44c3-9dfd-e2a58bb62349",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "emails",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2816,
+        208
+      ],
+      "id": "70dd5914-8b65-477a-9115-3bc9e3e4f7e4",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Company website'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1872,
+        96
+      ],
+      "id": "f6aba510-e79a-4fcf-a3bb-f81720da24b3",
+      "name": "HTTP Request5",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "20eefad7-9528-44e1-8561-e1dab550c92f",
+              "leftValue": "={{ $json.emails }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2544,
+        80
+      ],
+      "id": "6cb1f9bb-8683-44ce-9df5-a3187d28d61c",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0f53fde-3b82-4f12-b39c-9bf11321ffe2",
+              "name": "emails",
+              "value": "={{ $json.emails }}",
+              "type": "string"
+            },
+            {
+              "id": "afd40437-3914-42f5-aef6-7b2731123158",
+              "name": "Title",
+              "value": "={{ $('Loop Over Items2').item.json.Title }}",
+              "type": "string"
+            },
+            {
+              "id": "5af0abe6-ada0-4e59-b2d0-e78d794b3d69",
+              "name": "Job description",
+              "value": "={{ $('Loop Over Items2').item.json['Job description'] }}",
+              "type": "string"
+            },
+            {
+              "id": "134febd1-3dd1-41a0-aa09-a33d47d67623",
+              "name": "Location",
+              "value": "={{ $('Loop Over Items2').item.json.Location }}",
+              "type": "string"
+            },
+            {
+              "id": "9074e43d-7102-4190-8385-4db3961b8df4",
+              "name": "Company website",
+              "value": "={{ $('Loop Over Items2').item.json['Company website'] }}",
+              "type": "string"
+            },
+            {
+              "id": "dc65f157-090f-4173-b89e-1f1730949866",
+              "name": "CompanyName",
+              "value": "={{ $('Loop Over Items2').item.json.CompanyName }}",
+              "type": "string"
+            },
+            {
+              "id": "0a8e62aa-18bd-4c27-ac92-48145493e43e",
+              "name": "Logo",
+              "value": "={{ $('Loop Over Items2').item.json.Logo }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2800,
+        448
+      ],
+      "id": "473d2968-79cc-45ef-901d-bbd52259c39c",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "maxItems": 35
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        544
+      ],
+      "id": "cac56722-9e1e-4e2d-8cbd-c131176815b7",
+      "name": "Limit1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f722112f-92e5-4fb3-8a03-6e9ff66cc928",
+              "leftValue": "={{ $json.emails.toString() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        -32
+      ],
+      "id": "73e256b1-6c53-4db7-a42f-05bde7ceb0b0",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "content": "## LinkedIn Job automation Interface. \n3 workflows to scrap data, prepare Email using AI, and send it to the company. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 1648,
+        "width": 3632,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "464a7bf1-9c9e-4145-ba03-d358be649628",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        416,
+        240
+      ],
+      "id": "23b92bb1-e364-4761-ad02-e26ac53f0216",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 80
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        544
+      ],
+      "id": "54c78556-479f-4ece-acc7-ebecd2592adc",
+      "name": "Wait",
+      "webhookId": "5041d72c-8f17-46f0-9c51-9f3338b1c097"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "CVName",
+          "cachedResultUrl": "https://drive.google.com/"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        768
+      ],
+      "id": "f6e056c8-4279-4f70-adf7-f265fd6c0dc7",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "cvname",
+          "cachedResultUrl": "https://drive.google.com/"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        560,
+        1136
+      ],
+      "id": "a4275d73-1f71-4bdd-9c14-2071b764f30b",
+      "name": "Download file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Limit1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Download file2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        []
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file2": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "11e50d94-cd56-4043-814d-2189f9299c37",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "24fff434b44ca42d841b3f4305a6151063ec2c18aa034d0b0a5a593a95746a14"
+  },
+  "id": "Tbux6IGbFDm6MByd",
+  "tags": []
+}
